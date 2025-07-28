@@ -1,0 +1,58 @@
+@model object
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to FDWS</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Data Processing</h5>
+                </div>
+                <div class="card-body">
+                    <input type="number" id="dataId" class="form-control mb-3" placeholder="Enter ID" />
+                    <button class="btn btn-primary" onclick="processData()">Process Data</button>
+                    <div id="result" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Blazor Component</h5>
+                </div>
+                <div class="card-body">
+                    <component type="typeof(FDWS.Components.ExampleComponent)" render-mode="ServerPrerendered" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function processData() {
+        const id = document.getElementById('dataId').value;
+        if (!id) {
+            alert('Please enter an ID');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/Home/GetData?id=${id}`);
+            const result = await response.json();
+            document.getElementById('result').innerHTML = 
+                `<div class="alert alert-success">
+                    <strong>Result:</strong> ${result.result}<br>
+                    <strong>Status:</strong> ${result.status}<br>
+                    <strong>Processed At:</strong> ${new Date(result.processedAt).toLocaleString()}
+                </div>`;
+        } catch (error) {
+            document.getElementById('result').innerHTML = 
+                `<div class="alert alert-danger">Error: ${error.message}</div>`;
+        }
+    }
+</script>

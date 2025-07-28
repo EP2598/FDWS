@@ -1,0 +1,26 @@
+<div class="blazor-component">
+    <h6>Blazor Component</h6>
+    <p>Current time: @currentTime</p>
+    <button class="btn btn-secondary btn-sm" @onclick="UpdateTime">Update Time</button>
+    <p class="mt-2">Button clicked @clickCount times</p>
+</div>
+
+@code {
+    private string currentTime = DateTime.Now.ToString("HH:mm:ss");
+    private int clickCount = 0;
+
+    private void UpdateTime()
+    {
+        currentTime = DateTime.Now.ToString("HH:mm:ss");
+        clickCount++;
+    }
+}
+
+<style>
+    .blazor-component {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+    }
+</style>
