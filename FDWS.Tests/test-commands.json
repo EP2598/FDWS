@@ -1,0 +1,9 @@
+{
+  "commands": {
+    "run-all-tests": "dotnet test",
+    "run-with-coverage": "dotnet test --collect:\"XPlat Code Coverage\"",
+    "run-specific-test": "dotnet test --filter ClassName=BusinessLogicServiceTests",
+    "run-verbose": "dotnet test --logger \"console;verbosity=detailed\"",
+    "build-and-test": "dotnet build && dotnet test"
+  }
+}

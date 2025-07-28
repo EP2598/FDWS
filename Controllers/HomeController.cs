@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using FDWS.Services;
 using FDWS.Models;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Net;
 
 namespace FDWS.Controllers
 {
@@ -20,22 +22,23 @@ namespace FDWS.Controllers
             var model = new HomeViewModel
             {
                 Title = "Welcome to FDWS",
-                Message = "Your application is running successfully!",
+                Message = "Let's calculate how many average villager dies",
                 Timestamp = System.DateTime.Now
             };
             return View(model);
         }
 
-        public IActionResult Privacy()
+        [HttpPost]
+        public async Task<IActionResult> GetResult([FromBody] List<int[]> listInputs)
         {
-            return View();
-        }
+            var result = await _businessLogic.ValidateInputAsync(listInputs);
 
-        [HttpGet]
-        public async Task<IActionResult> GetData(int id)
-        {
-            var result = await _businessLogic.ProcessDataAsync(id);
-            return Json(result);
+            if (result.Status == HttpStatusCode.BadRequest.ToString())
+            {
+                return Json(new { success = false, message = result.Result });
+            }
+
+            return Json(new { success = true, message = result.Result });
         }
     }
 }

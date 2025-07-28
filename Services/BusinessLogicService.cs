@@ -1,6 +1,9 @@
 using FDWS.Models;
 using FDWS.Services;
 using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace FDWS.Services
@@ -20,72 +23,72 @@ namespace FDWS.Services
             };
         }
 
-        public async Task<object> ProcessDataAsync(int id)
+        private BigInteger GenerateFibonacci(int n) 
         {
-            // Simulate data processing
-            await Task.Delay(50);
-            
-            return new
+            if (n < 0) throw new ArgumentException("Input must be a non-negative integer.");
+            if (n == 0) return 0;
+            if (n == 1) return 1;
+
+            BigInteger sum = 1;
+            BigInteger a = 0, b = 1;
+            for (int i = 2; i <= n; i++)
             {
-                Id = id,
-                ProcessedAt = DateTime.Now,
-                Status = "Completed",
-                Result = $"Processed item {id}"
-            };
+                BigInteger temp = a + b;
+                sum += temp;
+                a = b;
+                b = temp;
+            }
+
+            return sum;
         }
 
-        public async Task<object> GetByIdAsync(int id)
+        private double GetVillagerNumber(int currentYear) 
         {
-            // Simulate database lookup
-            await Task.Delay(75);
-            
-            if (id <= 0)
-                return null;
+            var getResult = GenerateFibonacci(currentYear);
 
-            return new
-            {
-                Id = id,
-                Name = $"Item {id}",
-                Description = $"Description for item {id}",
-                CreatedAt = DateTime.Now.AddDays(-id)
-            };
+            if (getResult == 0) return 0;
+
+            double logVal = BigInteger.Log10(getResult);
+
+            return Math.Pow(10, logVal % 10);
         }
 
-        public async Task<DataProcessingModel> CreateAsync(object data)
+        public async Task<ResponseObject> ValidateInputAsync(List<int[]> listData) 
         {
-            // Simulate creation logic
-            await Task.Delay(100);
-            
-            var newId = new Random().Next(1, 1000);
+            ResponseObject response = new ResponseObject();
 
-            DataProcessingModel model = new DataProcessingModel
+            if (listData == null || listData.Count == 0)
             {
-                Id = newId,
-                Result = String.Empty,
-                Status = "Created",
-                ProcessedAt = DateTime.Now
-            };
-            return model;
-        }
-
-        public async Task<bool> ValidateDataAsync(object data)
-        {
-            // Simulate validation logic
-            await Task.Delay(25);
-            return data != null;
-        }
-
-        public async Task<object> CalculateResultAsync(object input)
-        {
-            // Simulate complex calculation
-            await Task.Delay(150);
-            
-            return new
+                response.Result = "No input";
+                response.Status = HttpStatusCode.BadRequest.ToString();
+            }
+            else
             {
-                Input = input,
-                Result = $"Calculated result for {input}",
-                CalculatedAt = DateTime.Now
-            };
+                double deathAverage = 0.0;
+                double tempTotalDeath = 0.0;
+                
+                foreach (var data in listData)
+                {
+                    int ageOfDeath = data[0];
+                    int yearOfDeath = data[1];
+
+                    if (yearOfDeath < ageOfDeath) 
+                    {
+                        response.Result = "Some of the input is invalid (Year of Death must be higher than Age of Death)";
+                        response.Status = HttpStatusCode.BadRequest.ToString();
+                        return response;
+                    }
+
+                    tempTotalDeath += GetVillagerNumber(yearOfDeath - ageOfDeath);
+                }
+
+                deathAverage = tempTotalDeath / listData.Count;
+
+                response.Result = deathAverage.ToString();
+                response.Status = HttpStatusCode.OK.ToString();
+            }
+
+            return response;
         }
     }
 }
